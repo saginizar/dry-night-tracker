@@ -2,6 +2,14 @@ import { useState } from 'react'
 
 const STEPS = [
   {
+    key: 'parent',
+    question: 'Who is logging?',
+    options: [
+      { value: 'Daddy', label: '👨 Daddy', color: '#6c8fff' },
+      { value: 'Mommy', label: '👩 Mommy', color: '#f06595' },
+    ],
+  },
+  {
     key: 'wetDry',
     question: 'Was the underwear wet?',
     options: [
@@ -61,7 +69,7 @@ export default function Wizard({ onSave, onCancel }) {
   }
 
   const current = STEPS[step]
-  const progress = ((step) / STEPS.length) * 100
+  const progress = (step / STEPS.length) * 100
 
   return (
     <div style={styles.container}>
@@ -188,9 +196,6 @@ const styles = {
     background: '#1a1d27',
     cursor: 'pointer',
     transition: 'transform 0.1s ease, background 0.15s ease',
-    active: {
-      transform: 'scale(0.97)',
-    },
   },
   optionLabel: {
     fontSize: '24px',

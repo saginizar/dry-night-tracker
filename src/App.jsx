@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import Wizard from './components/Wizard.jsx'
 import History from './components/History.jsx'
-import { loadEvents, saveEvent, deleteEvent, exportCSV } from './storage.js'
+import BedtimeLogger from './components/BedtimeLogger.jsx'
+import { loadEvents, saveEvent, deleteEvent, exportCSV, loadDailyLogs, saveDailyLog } from './storage.js'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -15,9 +16,14 @@ function getNow() {
   }
 }
 
+function getTodayDate() {
+  return new Date().toLocaleDateString('en-GB')
+}
+
 export default function App() {
   const [view, setView] = useState('home')
   const [events, setEvents] = useState(() => loadEvents())
+  const [dailyLogs, setDailyLogs] = useState(() => loadDailyLogs())
 
   function handleSave(answers) {
     const ts = getNow()
@@ -32,16 +38,36 @@ export default function App() {
     setEvents(updated)
   }
 
+  function handleBedtimeSave(date, data) {
+    const updated = saveDailyLog(date, data)
+    setDailyLogs(updated)
+    setView('bedtimeSaved')
+  }
+
+  const todayDate = getTodayDate()
+  const todayBedtime = (dailyLogs[todayDate] || {}).bedtimeHelper
+
   if (view === 'wizard') {
     return <Wizard onSave={handleSave} onCancel={() => setView('home')} />
+  }
+
+  if (view === 'bedtime') {
+    return (
+      <BedtimeLogger
+        onSave={handleBedtimeSave}
+        onCancel={() => setView('home')}
+        existing={todayBedtime}
+      />
+    )
   }
 
   if (view === 'history') {
     return (
       <History
         events={events}
+        dailyLogs={dailyLogs}
         onDelete={handleDelete}
-        onExport={() => exportCSV(events)}
+        onExport={() => exportCSV(events, dailyLogs)}
         onBack={() => setView('home')}
       />
     )
@@ -52,10 +78,20 @@ export default function App() {
       <div style={styles.center}>
         <div style={styles.savedIcon}>✓</div>
         <div style={styles.savedText}>Event logged!</div>
-        <button style={styles.bigBtn} onClick={() => setView('home')}>Done</button>
+        <button style={{ ...styles.bigBtn, ...styles.primaryBtn }} onClick={() => setView('home')}>Done</button>
         <button style={{ ...styles.bigBtn, ...styles.secondaryBtn }} onClick={() => setView('wizard')}>
           Log another
         </button>
+      </div>
+    )
+  }
+
+  if (view === 'bedtimeSaved') {
+    return (
+      <div style={styles.center}>
+        <div style={{ ...styles.savedIcon, background: '#ffa94d' }}>🛏</div>
+        <div style={styles.savedText}>Bedtime logged!</div>
+        <button style={{ ...styles.bigBtn, ...styles.primaryBtn }} onClick={() => setView('home')}>Done</button>
       </div>
     )
   }
@@ -67,10 +103,20 @@ export default function App() {
         <h1 style={styles.title}>Dry Night Tracker</h1>
         <div style={styles.subtitle}>Night log for the sleep coach</div>
       </div>
+
       <div style={styles.btnGroup}>
         <button style={{ ...styles.bigBtn, ...styles.primaryBtn }} onClick={() => setView('wizard')}>
           + Log a Wake Event
         </button>
+
+        <button style={{ ...styles.bigBtn, ...styles.bedtimeBtn }} onClick={() => setView('bedtime')}>
+          🛏 Log Bedtime
+          {todayBedtime
+            ? <span style={styles.bedtimeDone}>✓ {todayBedtime}</span>
+            : <span style={styles.bedtimePending}>not logged yet</span>
+          }
+        </button>
+
         <button style={{ ...styles.bigBtn, ...styles.secondaryBtn }} onClick={() => setView('history')}>
           View History
           {events.length > 0 && <span style={styles.badge}>{events.length}</span>}
@@ -122,15 +168,19 @@ const styles = {
     fontSize: '20px',
     fontWeight: '600',
     cursor: 'pointer',
-    position: 'relative',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     gap: '8px',
   },
   primaryBtn: {
     background: '#6c8fff',
     color: '#fff',
+    justifyContent: 'center',
+  },
+  bedtimeBtn: {
+    background: '#2a2318',
+    color: '#ffa94d',
   },
   secondaryBtn: {
     background: '#252836',
@@ -143,6 +193,16 @@ const styles = {
     padding: '2px 10px',
     fontSize: '14px',
     fontWeight: '700',
+  },
+  bedtimeDone: {
+    fontSize: '14px',
+    color: '#51cf66',
+    fontWeight: '500',
+  },
+  bedtimePending: {
+    fontSize: '14px',
+    color: '#8b90a8',
+    fontWeight: '400',
   },
   center: {
     minHeight: '100dvh',
