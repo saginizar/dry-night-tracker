@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.next/
+outputs/
+reports/
+tests/
+*.db
+*.sqlite
+*.sqlite3
+.env
+*.pem
+*.key
+.DS_Store
+*.local
