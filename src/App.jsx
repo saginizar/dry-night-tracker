@@ -2,6 +2,8 @@ import { useState } from 'react'
 import Wizard from './components/Wizard.jsx'
 import History from './components/History.jsx'
 import BedtimeLogger from './components/BedtimeLogger.jsx'
+import Summary from './components/Summary.jsx'
+import AskAI from './components/AskAI.jsx'
 import { loadEvents, saveEvent, deleteEvent, exportCSV, loadDailyLogs, saveDailyLog } from './storage.js'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -73,6 +75,14 @@ export default function App() {
     )
   }
 
+  if (view === 'summary') {
+    return <Summary events={events} onBack={() => setView('home')} />
+  }
+
+  if (view === 'askai') {
+    return <AskAI events={events} dailyLogs={dailyLogs} onBack={() => setView('home')} />
+  }
+
   if (view === 'saved') {
     return (
       <div style={styles.center}>
@@ -117,9 +127,18 @@ export default function App() {
           }
         </button>
 
-        <button style={{ ...styles.bigBtn, ...styles.secondaryBtn }} onClick={() => setView('history')}>
-          View History
-          {events.length > 0 && <span style={styles.badge}>{events.length}</span>}
+        <div style={styles.row2}>
+          <button style={{ ...styles.halfBtn, ...styles.secondaryBtn }} onClick={() => setView('history')}>
+            History
+            {events.length > 0 && <span style={styles.badge}>{events.length}</span>}
+          </button>
+          <button style={{ ...styles.halfBtn, ...styles.secondaryBtn }} onClick={() => setView('summary')}>
+            📊 Stats
+          </button>
+        </div>
+
+        <button style={{ ...styles.bigBtn, ...styles.aiBtn }} onClick={() => setView('askai')}>
+          🤖 Ask AI
         </button>
       </div>
     </div>
@@ -173,6 +192,23 @@ const styles = {
     justifyContent: 'space-between',
     gap: '8px',
   },
+  row2: {
+    display: 'flex',
+    gap: '12px',
+  },
+  halfBtn: {
+    flex: 1,
+    padding: '22px 16px',
+    borderRadius: '18px',
+    border: 'none',
+    fontSize: '18px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '8px',
+  },
   primaryBtn: {
     background: '#6c8fff',
     color: '#fff',
@@ -185,6 +221,11 @@ const styles = {
   secondaryBtn: {
     background: '#252836',
     color: '#f0f2f8',
+  },
+  aiBtn: {
+    background: '#1e2533',
+    color: '#a78bfa',
+    justifyContent: 'center',
   },
   badge: {
     background: '#6c8fff',

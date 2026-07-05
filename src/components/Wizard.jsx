@@ -36,11 +36,12 @@ const STEPS = [
     ],
   },
   {
-    key: 'askedForDaddy',
-    question: 'Did he ask for Daddy only?',
+    key: 'askedForParent',
+    question: 'Did he ask for a specific parent?',
     options: [
-      { value: 'Yes', label: '👨 Yes — Daddy only', color: '#ffa94d' },
-      { value: 'No', label: '👍 No — was fine', color: '#51cf66' },
+      { value: 'Daddy', label: '👨 Daddy', color: '#6c8fff' },
+      { value: 'Mommy', label: '👩 Mommy', color: '#f06595' },
+      { value: 'No — was fine', label: '👍 No — was fine', color: '#51cf66' },
     ],
   },
 ]

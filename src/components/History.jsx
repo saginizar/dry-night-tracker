@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getParentPref } from '../storage.js'
 
 const WET_COLOR = '#ff6b6b'
 const DRY_COLOR = '#51cf66'
@@ -76,7 +77,7 @@ function TableView({ events, dailyLogs, onDelete }) {
       <table style={styles.table}>
         <thead>
           <tr>
-            {['Date', 'Time', 'By', 'Wet?', 'Woke by', 'Toilet', 'Daddy?', 'Bedtime', ''].map(h => (
+            {['Date', 'Time', 'By', 'Wet?', 'Woke by', 'Toilet', 'Parent?', 'Bedtime', ''].map(h => (
               <th key={h} style={styles.th}>{h}</th>
             ))}
           </tr>
@@ -95,7 +96,7 @@ function TableView({ events, dailyLogs, onDelete }) {
                 </td>
                 <td style={styles.td}>{e.wokeUpBy}</td>
                 <td style={styles.td}>{e.wentToToilet}</td>
-                <td style={styles.td}>{e.askedForDaddy}</td>
+                <td style={styles.td}>{getParentPref(e)}</td>
                 <td style={styles.td}>{bedtime}</td>
                 <td style={styles.td}>
                   <button style={styles.deleteSmall} onClick={() => onDelete(e.id)}>✕</button>
@@ -127,7 +128,7 @@ function EventCard({ event, onDelete }) {
       <div style={styles.details}>
         <Detail label="Woke up by" value={event.wokeUpBy} />
         <Detail label="Toilet" value={event.wentToToilet} />
-        <Detail label="Daddy only" value={event.askedForDaddy} />
+        <Detail label="Parent pref" value={getParentPref(event)} />
       </div>
       <button style={styles.deleteBtn} onClick={() => onDelete(event.id)}>Delete</button>
     </div>

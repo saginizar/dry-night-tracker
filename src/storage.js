@@ -1,5 +1,6 @@
 const STORAGE_KEY = 'dry-night-tracker-events'
 const DAILY_KEY = 'dry-night-tracker-daily'
+const APIKEY_KEY = 'dry-night-tracker-apikey'
 
 export function loadEvents() {
   try {
@@ -39,8 +40,24 @@ export function saveDailyLog(date, data) {
   return logs
 }
 
+export function loadApiKey() {
+  return localStorage.getItem(APIKEY_KEY) || ''
+}
+
+export function saveApiKey(key) {
+  localStorage.setItem(APIKEY_KEY, key)
+}
+
+// Normalize the parent-preference field across old and new events
+export function getParentPref(event) {
+  if (event.askedForParent) return event.askedForParent
+  if (event.askedForDaddy === 'Yes — Daddy only') return 'Daddy'
+  if (event.askedForDaddy) return 'No — was fine'
+  return ''
+}
+
 export function exportCSV(events, dailyLogs) {
-  const header = ['Date', 'Day', 'Time', 'Logged By', 'Wet/Dry', 'Woke Up By', 'Went to Toilet', 'Asked for Daddy', 'Bedtime Helper']
+  const header = ['Date', 'Day', 'Time', 'Logged By', 'Wet/Dry', 'Woke Up By', 'Went to Toilet', 'Asked For Parent', 'Bedtime Helper']
   const rows = events.map(e => [
     e.date,
     e.dayName,
@@ -49,7 +66,7 @@ export function exportCSV(events, dailyLogs) {
     e.wetDry,
     e.wokeUpBy,
     e.wentToToilet,
-    e.askedForDaddy,
+    getParentPref(e),
     (dailyLogs[e.date] || {}).bedtimeHelper || '',
   ])
   const csv = [header, ...rows].map(r => r.join(',')).join('\n')
